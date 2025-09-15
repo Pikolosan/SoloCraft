@@ -192,11 +192,13 @@ class SoloCraftApp:
         button_frame.grid(row=0, column=0, sticky="we", pady=(0, 15))
         
         ttk.Button(button_frame, text="+ Create Mission", style='Accent.TButton',
-                  command=self.create_mission).grid(row=0, column=0, padx=(0, 10), ipadx=10, ipady=5)
+                  command=self.create_mission).grid(row=0, column=0, padx=(0, 8), ipadx=10, ipady=5)
         ttk.Button(button_frame, text="✓ Complete", style='Secondary.TButton',
-                  command=self.complete_mission).grid(row=0, column=1, padx=5, ipadx=10, ipady=5)
-        ttk.Button(button_frame, text="✗ Delete", style='Secondary.TButton',
-                  command=self.delete_mission).grid(row=0, column=2, padx=(5, 0), ipadx=10, ipady=5)
+                  command=self.complete_mission).grid(row=0, column=1, padx=4, ipadx=10, ipady=5)
+        ttk.Button(button_frame, text="✗ Fail", style='Secondary.TButton',
+                  command=self.fail_mission).grid(row=0, column=2, padx=4, ipadx=10, ipady=5)
+        ttk.Button(button_frame, text="🗑 Delete", style='Secondary.TButton',
+                  command=self.delete_mission).grid(row=0, column=3, padx=(4, 0), ipadx=10, ipady=5)
         
         # Modern mission list with improved styling
         tree_container = ttk.Frame(mission_frame, style='Card.TFrame', padding="10")
@@ -311,7 +313,13 @@ class SoloCraftApp:
         # Load and display missions
         missions = self.storage.load_missions()
         for mission in missions:
-            status = "Completed" if mission.completed else "Active"
+            if mission.completed:
+                status = "Completed"
+            elif mission.failed:
+                status = "Failed"
+            else:
+                status = "Active"
+            
             self.mission_tree.insert("", "end", values=(
                 mission.title,
                 mission.difficulty,
@@ -360,7 +368,7 @@ class SoloCraftApp:
         missions = self.storage.load_missions()
         
         for mission in missions:
-            if mission.id == mission_id and not mission.completed:
+            if mission.id == mission_id and not mission.completed and not mission.failed:
                 mission.complete_mission()
                 self.storage.save_mission(mission)
                 
@@ -377,6 +385,52 @@ class SoloCraftApp:
                 return
         
         self.show_modern_message("Cannot Complete", "Mission is already completed or not found.", "warning")
+
+    def fail_mission(self):
+        """Fail the selected mission and apply punishment."""
+        selection = self.mission_tree.selection()
+        if not selection:
+            messagebox.showwarning("No Selection", "Please select a mission to fail.")
+            return
+        
+        # Get mission ID from tags
+        item_tags = self.mission_tree.item(selection[0])['tags']
+        if not item_tags:
+            return
+        
+        mission_id = item_tags[0]
+        missions = self.storage.load_missions()
+        
+        for mission in missions:
+            if mission.id == mission_id and not mission.completed and not mission.failed:
+                # Confirm mission failure
+                confirm_msg = f"Are you sure you want to mark '{mission.title}' as failed?"
+                if mission.punishment:
+                    confirm_msg += f"\n\nPunishment will be applied: {mission.punishment}"
+                
+                if not messagebox.askyesno("Confirm Mission Failure", confirm_msg):
+                    return
+                
+                # Fail the mission
+                mission.fail_mission()
+                self.storage.save_mission(mission)
+                
+                # Apply punishment
+                punishment_effects = self.user_progress.apply_punishment(mission.punishment)
+                self.storage.save_user_progress(self.user_progress)
+                
+                # Show punishment results
+                if punishment_effects:
+                    effects_text = "\n".join([f"• {effect}" for effect in punishment_effects])
+                    msg = f"Mission '{mission.title}' failed!\n\nPunishments applied:\n{effects_text}"
+                else:
+                    msg = f"Mission '{mission.title}' failed!"
+                
+                self.show_modern_message("Mission Failed", msg, "warning")
+                self.refresh_all_displays()
+                return
+        
+        self.show_modern_message("Cannot Fail", "Mission is already completed, failed, or not found.", "warning")
 
     def delete_mission(self):
         """Delete the selected mission."""

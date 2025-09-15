@@ -4,6 +4,8 @@
 
 SoloCraft is a desktop gamification application built with Python and Tkinter designed to help users build projects independently with minimal external assistance. The app implements a mission-based system where users create project tasks, manage limited help resources through a ticket system, and track their learning through insight debt management. The application encourages self-reliance while providing structured support through gamification mechanics including XP, levels, and achievement tracking.
 
+**Current Status**: Fully functional desktop application with complete punishment system implementation.
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
@@ -44,7 +46,43 @@ Preferred communication style: Simple, everyday language.
 - **datetime**: Timestamp tracking and weekly reset calculations
 - **enum**: Type-safe difficulty level definitions
 
+### System Dependencies
+- **Python 3.11+**: Core runtime environment with all standard libraries
+
 ### File System Dependencies
 - **Local Data Directory**: `solocraft_data/` folder for storing all application data
 - **JSON Files**: missions.json, insight_debts.json, and user_progress.json for persistent storage
 - **No External APIs**: Completely offline application with no network dependencies or third-party service integrations
+
+## Current Data State
+- **User Progress**: Level 1, 50 XP, 1 help ticket, 2 tutorial tickets
+- **Missions**: 0 active missions
+- **Insight Debts**: 2 cleared debts (both help tickets)
+
+## Setup and Usage
+
+### Running the Application
+The SoloCraft application is a standalone desktop application that runs directly on your system.
+
+**To start the application:**
+```bash
+python run_solocraft.py
+```
+or
+```bash
+python solocraft_gui.py
+```
+
+### Key Files
+- **`run_solocraft.py`**: Main launcher script for the desktop application
+- **`solocraft_gui.py`**: Core GUI application with Tkinter interface
+- **`data_models.py`**: Data structures for missions, insight debts, and user progress
+- **`storage_manager.py`**: JSON file persistence manager for all application data
+
+### System Requirements
+- Python 3.11 or higher
+- Tkinter (usually included with Python)
+- Operating system with GUI support (Windows, macOS, Linux with desktop environment)
+
+### Data Persistence
+All user data is automatically saved to JSON files in the `solocraft_data/` directory and persists between sessions.

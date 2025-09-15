@@ -28,10 +28,16 @@ class Mission:
         self.created_at = datetime.now().isoformat()
         self.completed = False
         self.completed_at = None
+        self.failed = False
+        self.failed_at = None
 
     def complete_mission(self):
         self.completed = True
         self.completed_at = datetime.now().isoformat()
+        
+    def fail_mission(self):
+        self.failed = True
+        self.failed_at = datetime.now().isoformat()
 
     def to_dict(self):
         return {
@@ -44,7 +50,9 @@ class Mission:
             'punishment': self.punishment,
             'created_at': self.created_at,
             'completed': self.completed,
-            'completed_at': self.completed_at
+            'completed_at': self.completed_at,
+            'failed': self.failed,
+            'failed_at': self.failed_at
         }
 
     @classmethod
@@ -61,6 +69,8 @@ class Mission:
         mission.created_at = data['created_at']
         mission.completed = data['completed']
         mission.completed_at = data.get('completed_at')
+        mission.failed = data.get('failed', False)
+        mission.failed_at = data.get('failed_at')
         return mission
 
 
@@ -120,6 +130,63 @@ class UserProgress:
             self.level = new_level
             return True  # Level up occurred
         return False
+    
+    def apply_punishment(self, punishment_text):
+        """Apply punishment for failed mission."""
+        punishment_effects = []
+        
+        if not punishment_text:
+            return punishment_effects
+        
+        # Parse punishment text for different types of penalties
+        punishment_lower = punishment_text.lower()
+        
+        # XP loss punishment
+        if "xp" in punishment_lower or "experience" in punishment_lower:
+            # Extract number or default to 10
+            import re
+            xp_match = re.search(r'(\d+)\s*xp', punishment_lower)
+            xp_loss = int(xp_match.group(1)) if xp_match else 10
+            
+            old_xp = self.xp
+            self.xp = max(0, self.xp - xp_loss)  # Don't go below 0
+            
+            # Recalculate level if XP drops significantly
+            new_level = max(1, (self.xp // 100) + 1)
+            if new_level < self.level:
+                self.level = new_level
+                punishment_effects.append(f"Lost {old_xp - self.xp} XP and dropped to Level {self.level}")
+            else:
+                punishment_effects.append(f"Lost {old_xp - self.xp} XP")
+        
+        # Ticket loss punishment
+        if "ticket" in punishment_lower:
+            tickets_lost = 0
+            if "help" in punishment_lower and self.help_tickets > 0:
+                self.help_tickets -= 1
+                tickets_lost += 1
+                punishment_effects.append("Lost 1 help ticket")
+            if "tutorial" in punishment_lower and self.tutorial_tickets > 0:
+                self.tutorial_tickets -= 1
+                tickets_lost += 1
+                punishment_effects.append("Lost 1 tutorial ticket")
+            
+            # Generic ticket loss if no specific type mentioned
+            if tickets_lost == 0 and (self.help_tickets > 0 or self.tutorial_tickets > 0):
+                if self.help_tickets > 0:
+                    self.help_tickets -= 1
+                    punishment_effects.append("Lost 1 help ticket")
+                elif self.tutorial_tickets > 0:
+                    self.tutorial_tickets -= 1
+                    punishment_effects.append("Lost 1 tutorial ticket")
+        
+        # If no specific punishment type found, apply default XP loss
+        if not punishment_effects:
+            old_xp = self.xp
+            self.xp = max(0, self.xp - 5)  # Default 5 XP loss
+            punishment_effects.append(f"Lost {old_xp - self.xp} XP (default punishment)")
+        
+        return punishment_effects
 
     def use_help_ticket(self):
         if self.help_tickets > 0:
