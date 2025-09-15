@@ -13,8 +13,25 @@ class SoloCraftApp:
     def __init__(self, root):
         self.root = root
         self.root.title("SoloCraft - Independent Project Builder")
-        self.root.geometry("1200x800")
-        self.root.configure(bg='#f0f0f0')
+        self.root.geometry("1300x850")
+        
+        # Modern color scheme
+        self.colors = {
+            'bg_primary': '#1a1d23',       # Dark blue-grey background
+            'bg_secondary': '#242731',      # Slightly lighter panels
+            'bg_tertiary': '#2c3038',       # Cards and sections
+            'accent': '#64b5f6',            # Cool blue accent
+            'accent_hover': '#42a5f5',      # Darker blue for hover
+            'success': '#4caf50',           # Green for success
+            'warning': '#ff9800',           # Orange for warnings
+            'text_primary': '#ffffff',      # White text
+            'text_secondary': '#b0bec5',    # Light grey text
+            'text_muted': '#78909c',        # Muted text
+            'border': '#37474f',            # Subtle borders
+        }
+        
+        self.root.configure(bg=self.colors['bg_primary'])
+        self.setup_styles()
         
         # Initialize storage manager
         self.storage = StorageManager()
@@ -30,11 +47,95 @@ class SoloCraftApp:
         
         self.setup_ui()
         self.refresh_all_displays()
+    
+    def setup_styles(self):
+        """Configure modern ttk styles."""
+        style = ttk.Style()
+        
+        # Configure main style theme
+        style.theme_use('clam')
+        
+        # Main frame style
+        style.configure('Modern.TFrame', 
+                       background=self.colors['bg_primary'])
+        
+        # Card frame style
+        style.configure('Card.TFrame', 
+                       background=self.colors['bg_tertiary'],
+                       relief='flat',
+                       borderwidth=1)
+        
+        # Modern label frame style
+        style.configure('Modern.TLabelframe', 
+                       background=self.colors['bg_secondary'],
+                       foreground=self.colors['text_primary'],
+                       relief='flat',
+                       borderwidth=0)
+        style.configure('Modern.TLabelframe.Label',
+                       background=self.colors['bg_secondary'],
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 11, 'bold'))
+        
+        # Button styles
+        style.configure('Accent.TButton',
+                       background=self.colors['accent'],
+                       foreground='white',
+                       borderwidth=0,
+                       focuscolor='none',
+                       font=('Segoe UI', 9, 'bold'))
+        style.map('Accent.TButton',
+                 background=[('active', self.colors['accent_hover'])])
+        
+        style.configure('Secondary.TButton',
+                       background=self.colors['bg_tertiary'],
+                       foreground=self.colors['text_primary'],
+                       borderwidth=1,
+                       bordercolor=self.colors['border'],
+                       focuscolor='none',
+                       font=('Segoe UI', 9))
+        style.map('Secondary.TButton',
+                 background=[('active', self.colors['border'])])
+        
+        # Label styles
+        style.configure('Title.TLabel',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 24, 'bold'))
+        
+        style.configure('Stats.TLabel',
+                       background=self.colors['bg_primary'],
+                       foreground=self.colors['accent'],
+                       font=('Segoe UI', 11, 'bold'))
+        
+        style.configure('Secondary.TLabel',
+                       background=self.colors['bg_secondary'],
+                       foreground=self.colors['text_secondary'],
+                       font=('Segoe UI', 9))
+        
+        # Treeview styles
+        style.configure('Modern.Treeview',
+                       background=self.colors['bg_tertiary'],
+                       foreground=self.colors['text_primary'],
+                       fieldbackground=self.colors['bg_tertiary'],
+                       borderwidth=0,
+                       font=('Segoe UI', 9))
+        style.configure('Modern.Treeview.Heading',
+                       background=self.colors['bg_secondary'],
+                       foreground=self.colors['text_primary'],
+                       font=('Segoe UI', 9, 'bold'),
+                       relief='flat')
+        
+        # Scrollbar style
+        style.configure('Modern.Vertical.TScrollbar',
+                       background=self.colors['bg_secondary'],
+                       troughcolor=self.colors['bg_tertiary'],
+                       borderwidth=0,
+                       arrowcolor=self.colors['text_secondary'])
 
     def setup_ui(self):
         """Set up the main user interface."""
-        # Main frame
-        main_frame = ttk.Frame(self.root, padding="10")
+        # Main container with modern styling
+        main_frame = ttk.Frame(self.root, style='Modern.TFrame', padding="20")
         main_frame.grid(row=0, column=0, sticky="nsew")
         
         # Configure grid weights
@@ -54,112 +155,138 @@ class SoloCraftApp:
 
     def setup_header(self, parent):
         """Set up the header with user statistics."""
-        header_frame = ttk.Frame(parent)
-        header_frame.grid(row=0, column=0, columnspan=2, sticky="we", pady=(0, 10))
+        header_frame = ttk.Frame(parent, style='Modern.TFrame')
+        header_frame.grid(row=0, column=0, columnspan=2, sticky="we", pady=(0, 20))
         header_frame.grid_columnconfigure(1, weight=1)
         
-        # Title
-        title_label = ttk.Label(header_frame, text="SoloCraft", font=("Arial", 20, "bold"))
+        # Title with modern styling
+        title_label = ttk.Label(header_frame, text="SoloCraft", style='Title.TLabel')
         title_label.grid(row=0, column=0, sticky=tk.W)
         
-        # User stats
-        stats_frame = ttk.Frame(header_frame)
+        # User stats with card-like appearance
+        stats_frame = ttk.Frame(header_frame, style='Card.TFrame', padding="15")
         stats_frame.grid(row=0, column=1, sticky=tk.E)
         
-        self.xp_label = ttk.Label(stats_frame, text="XP: 0", font=("Arial", 12))
-        self.xp_label.grid(row=0, column=0, padx=10)
+        # Create stat cards
+        self.xp_label = ttk.Label(stats_frame, text="XP: 0", style='Stats.TLabel')
+        self.xp_label.grid(row=0, column=0, padx=15)
         
-        self.level_label = ttk.Label(stats_frame, text="Level: 1", font=("Arial", 12))
-        self.level_label.grid(row=0, column=1, padx=10)
+        self.level_label = ttk.Label(stats_frame, text="Level: 1", style='Stats.TLabel')
+        self.level_label.grid(row=0, column=1, padx=15)
         
-        self.help_tickets_label = ttk.Label(stats_frame, text="Help Tickets: 3", font=("Arial", 12))
-        self.help_tickets_label.grid(row=0, column=2, padx=10)
+        self.help_tickets_label = ttk.Label(stats_frame, text="Help Tickets: 3", style='Stats.TLabel')
+        self.help_tickets_label.grid(row=0, column=2, padx=15)
         
-        self.tutorial_tickets_label = ttk.Label(stats_frame, text="Tutorial Tickets: 2", font=("Arial", 12))
-        self.tutorial_tickets_label.grid(row=0, column=3, padx=10)
+        self.tutorial_tickets_label = ttk.Label(stats_frame, text="Tutorial Tickets: 2", style='Stats.TLabel')
+        self.tutorial_tickets_label.grid(row=0, column=3, padx=15)
 
     def setup_mission_panel(self, parent):
         """Set up the mission management panel."""
-        mission_frame = ttk.LabelFrame(parent, text="Missions", padding="5")
-        mission_frame.grid(row=1, column=0, sticky="nsew", padx=(0, 5))
+        mission_frame = ttk.LabelFrame(parent, text="🎯 Missions", style='Modern.TLabelframe', padding="20")
+        mission_frame.grid(row=1, column=0, sticky="nsew", padx=(0, 10))
         mission_frame.grid_rowconfigure(1, weight=1)
         mission_frame.grid_columnconfigure(0, weight=1)
         
-        # Mission buttons
-        button_frame = ttk.Frame(mission_frame)
-        button_frame.grid(row=0, column=0, sticky="we", pady=(0, 5))
+        # Modern action buttons with improved spacing
+        button_frame = ttk.Frame(mission_frame, style='Modern.TFrame')
+        button_frame.grid(row=0, column=0, sticky="we", pady=(0, 15))
         
-        ttk.Button(button_frame, text="Create Mission", command=self.create_mission).grid(row=0, column=0, padx=(0, 5))
-        ttk.Button(button_frame, text="Complete Mission", command=self.complete_mission).grid(row=0, column=1, padx=5)
-        ttk.Button(button_frame, text="Delete Mission", command=self.delete_mission).grid(row=0, column=2, padx=5)
+        ttk.Button(button_frame, text="+ Create Mission", style='Accent.TButton',
+                  command=self.create_mission).grid(row=0, column=0, padx=(0, 10), ipadx=10, ipady=5)
+        ttk.Button(button_frame, text="✓ Complete", style='Secondary.TButton',
+                  command=self.complete_mission).grid(row=0, column=1, padx=5, ipadx=10, ipady=5)
+        ttk.Button(button_frame, text="✗ Delete", style='Secondary.TButton',
+                  command=self.delete_mission).grid(row=0, column=2, padx=(5, 0), ipadx=10, ipady=5)
         
-        # Mission list
-        self.mission_tree = ttk.Treeview(mission_frame, columns=("title", "difficulty", "rewards", "status"), show="headings")
-        self.mission_tree.grid(row=1, column=0, sticky="nsew")
+        # Modern mission list with improved styling
+        tree_container = ttk.Frame(mission_frame, style='Card.TFrame', padding="10")
+        tree_container.grid(row=1, column=0, sticky="nsew")
+        tree_container.grid_rowconfigure(0, weight=1)
+        tree_container.grid_columnconfigure(0, weight=1)
         
-        # Configure columns
-        self.mission_tree.heading("title", text="Title")
-        self.mission_tree.heading("difficulty", text="Difficulty")
-        self.mission_tree.heading("rewards", text="XP Reward")
-        self.mission_tree.heading("status", text="Status")
+        self.mission_tree = ttk.Treeview(tree_container, 
+                                       columns=("title", "difficulty", "rewards", "status"), 
+                                       show="headings", style='Modern.Treeview', height=12)
+        self.mission_tree.grid(row=0, column=0, sticky="nsew")
         
-        self.mission_tree.column("title", width=200)
-        self.mission_tree.column("difficulty", width=80)
-        self.mission_tree.column("rewards", width=80)
-        self.mission_tree.column("status", width=100)
+        # Configure columns with better headers
+        self.mission_tree.heading("title", text="📋 Mission Title")
+        self.mission_tree.heading("difficulty", text="🎚 Level")
+        self.mission_tree.heading("rewards", text="⭐ XP")
+        self.mission_tree.heading("status", text="📊 Status")
         
-        # Scrollbar for mission list
-        mission_scrollbar = ttk.Scrollbar(mission_frame, orient=tk.VERTICAL, command=self.mission_tree.yview)
-        mission_scrollbar.grid(row=1, column=1, sticky="ns")
+        self.mission_tree.column("title", width=250, minwidth=200)
+        self.mission_tree.column("difficulty", width=100, minwidth=80)
+        self.mission_tree.column("rewards", width=80, minwidth=60)
+        self.mission_tree.column("status", width=120, minwidth=100)
+        
+        # Modern scrollbar
+        mission_scrollbar = ttk.Scrollbar(tree_container, orient=tk.VERTICAL, 
+                                        command=self.mission_tree.yview, style='Modern.Vertical.TScrollbar')
+        mission_scrollbar.grid(row=0, column=1, sticky="ns")
         self.mission_tree.configure(yscrollcommand=mission_scrollbar.set)
 
     def setup_tickets_panel(self, parent):
         """Set up the tickets and insight debt panel."""
-        right_frame = ttk.Frame(parent)
+        right_frame = ttk.Frame(parent, style='Modern.TFrame')
         right_frame.grid(row=1, column=1, sticky="nsew")
         right_frame.grid_rowconfigure(1, weight=1)
         right_frame.grid_columnconfigure(0, weight=1)
         
-        # Ticket usage frame
-        ticket_frame = ttk.LabelFrame(right_frame, text="Use Tickets", padding="5")
-        ticket_frame.grid(row=0, column=0, sticky="we", pady=(0, 5))
+        # Modern ticket usage section
+        ticket_frame = ttk.LabelFrame(right_frame, text="🎫 Use Tickets", 
+                                    style='Modern.TLabelframe', padding="20")
+        ticket_frame.grid(row=0, column=0, sticky="we", pady=(0, 10))
         ticket_frame.grid_columnconfigure(0, weight=1)
         
-        button_frame = ttk.Frame(ticket_frame)
-        button_frame.grid(row=0, column=0, pady=5)
+        button_frame = ttk.Frame(ticket_frame, style='Modern.TFrame')
+        button_frame.grid(row=0, column=0, pady=10)
         
-        ttk.Button(button_frame, text="Use Help Ticket", command=self.use_help_ticket).grid(row=0, column=0, padx=(0, 5))
-        ttk.Button(button_frame, text="Use Tutorial Ticket", command=self.use_tutorial_ticket).grid(row=0, column=1, padx=5)
+        ttk.Button(button_frame, text="💡 Use Help Ticket", style='Accent.TButton',
+                  command=self.use_help_ticket).grid(row=0, column=0, padx=(0, 10), ipadx=15, ipady=8)
+        ttk.Button(button_frame, text="📚 Use Tutorial Ticket", style='Secondary.TButton',
+                  command=self.use_tutorial_ticket).grid(row=0, column=1, padx=(10, 0), ipadx=15, ipady=8)
         
-        # Insight debt frame
-        debt_frame = ttk.LabelFrame(right_frame, text="Insight Debt", padding="5")
+        # Modern insight debt section
+        debt_frame = ttk.LabelFrame(right_frame, text="📝 Insight Debt", 
+                                  style='Modern.TLabelframe', padding="20")
         debt_frame.grid(row=1, column=0, sticky="nsew")
         debt_frame.grid_rowconfigure(1, weight=1)
         debt_frame.grid_columnconfigure(0, weight=1)
         
-        # Debt buttons
-        debt_button_frame = ttk.Frame(debt_frame)
-        debt_button_frame.grid(row=0, column=0, sticky="we", pady=(0, 5))
+        # Modern debt action buttons
+        debt_button_frame = ttk.Frame(debt_frame, style='Modern.TFrame')
+        debt_button_frame.grid(row=0, column=0, sticky="we", pady=(0, 15))
         
-        ttk.Button(debt_button_frame, text="Write Insight", command=self.write_insight).grid(row=0, column=0, padx=(0, 5))
-        ttk.Button(debt_button_frame, text="View Insights", command=self.view_insights).grid(row=0, column=1, padx=5)
+        ttk.Button(debt_button_frame, text="✍ Write Insight", style='Accent.TButton',
+                  command=self.write_insight).grid(row=0, column=0, padx=(0, 10), ipadx=15, ipady=8)
+        ttk.Button(debt_button_frame, text="👁 View Insights", style='Secondary.TButton',
+                  command=self.view_insights).grid(row=0, column=1, padx=(10, 0), ipadx=15, ipady=8)
         
-        # Debt list
-        self.debt_tree = ttk.Treeview(debt_frame, columns=("type", "used_for", "status"), show="headings")
-        self.debt_tree.grid(row=1, column=0, sticky="nsew")
+        # Modern debt list container
+        debt_container = ttk.Frame(debt_frame, style='Card.TFrame', padding="10")
+        debt_container.grid(row=1, column=0, sticky="nsew")
+        debt_container.grid_rowconfigure(0, weight=1)
+        debt_container.grid_columnconfigure(0, weight=1)
         
-        # Configure debt columns
-        self.debt_tree.heading("type", text="Ticket Type")
-        self.debt_tree.heading("used_for", text="Used For")
-        self.debt_tree.heading("status", text="Status")
+        self.debt_tree = ttk.Treeview(debt_container, 
+                                    columns=("type", "used_for", "status"), 
+                                    show="headings", style='Modern.Treeview', height=8)
+        self.debt_tree.grid(row=0, column=0, sticky="nsew")
         
-        self.debt_tree.column("type", width=100)
-        self.debt_tree.column("used_for", width=150)
-        self.debt_tree.column("status", width=80)
+        # Configure debt columns with icons
+        self.debt_tree.heading("type", text="🎫 Type")
+        self.debt_tree.heading("used_for", text="📊 Used For")
+        self.debt_tree.heading("status", text="📊 Status")
         
-        # Scrollbar for debt list
-        debt_scrollbar = ttk.Scrollbar(debt_frame, orient=tk.VERTICAL, command=self.debt_tree.yview)
-        debt_scrollbar.grid(row=1, column=1, sticky="ns")
+        self.debt_tree.column("type", width=120, minwidth=100)
+        self.debt_tree.column("used_for", width=180, minwidth=150)
+        self.debt_tree.column("status", width=100, minwidth=80)
+        
+        # Modern scrollbar for debt list
+        debt_scrollbar = ttk.Scrollbar(debt_container, orient=tk.VERTICAL, 
+                                     command=self.debt_tree.yview, style='Modern.Vertical.TScrollbar')
+        debt_scrollbar.grid(row=0, column=1, sticky="ns")
         self.debt_tree.configure(yscrollcommand=debt_scrollbar.set)
 
     def refresh_all_displays(self):
@@ -215,7 +342,7 @@ class SoloCraftApp:
             mission = Mission(**dialog.result)
             self.storage.save_mission(mission)
             self.refresh_missions()
-            messagebox.showinfo("Success", "Mission created successfully!")
+            self.show_modern_message("Success", "\ud83c\udf89 Mission created successfully!", "success")
 
     def complete_mission(self):
         """Complete the selected mission."""
@@ -243,19 +370,19 @@ class SoloCraftApp:
                 
                 msg = f"Mission completed! You earned {mission.rewards} XP."
                 if level_up:
-                    msg += f" You leveled up to Level {self.user_progress.level}!"
+                    msg += f" \u2728 You leveled up to Level {self.user_progress.level}!"
                 
-                messagebox.showinfo("Mission Completed", msg)
+                self.show_modern_message("Mission Completed", msg, "success")
                 self.refresh_all_displays()
                 return
         
-        messagebox.showwarning("Cannot Complete", "Mission is already completed or not found.")
+        self.show_modern_message("Cannot Complete", "Mission is already completed or not found.", "warning")
 
     def delete_mission(self):
         """Delete the selected mission."""
         selection = self.mission_tree.selection()
         if not selection:
-            messagebox.showwarning("No Selection", "Please select a mission to delete.")
+            self.show_modern_message("No Selection", "Please select a mission to delete.", "warning")
             return
         
         if messagebox.askyesno("Confirm Delete", "Are you sure you want to delete this mission?"):
@@ -264,7 +391,7 @@ class SoloCraftApp:
                 mission_id = item_tags[0]
                 self.storage.delete_mission(mission_id)
                 self.refresh_missions()
-                messagebox.showinfo("Success", "Mission deleted successfully!")
+                self.show_modern_message("Success", "Mission deleted successfully!", "success")
 
     def use_help_ticket(self):
         """Use a help ticket and create insight debt."""
@@ -281,7 +408,7 @@ class SoloCraftApp:
             self.storage.save_insight_debt(debt)
             
             self.refresh_all_displays()
-            messagebox.showinfo("Ticket Used", "Help ticket used! You now have an insight debt to clear.")
+            self.show_modern_message("Ticket Used", "Help ticket used! \ud83d\udcdd You now have an insight debt to clear.", "info")
 
     def use_tutorial_ticket(self):
         """Use a tutorial ticket and create insight debt."""
@@ -298,13 +425,13 @@ class SoloCraftApp:
             self.storage.save_insight_debt(debt)
             
             self.refresh_all_displays()
-            messagebox.showinfo("Ticket Used", "Tutorial ticket used! You now have an insight debt to clear.")
+            self.show_modern_message("Ticket Used", "Tutorial ticket used! \ud83d\udcdd You now have an insight debt to clear.", "info")
 
     def write_insight(self):
         """Open dialog to write insight and clear debt."""
         debts = self.storage.get_active_debts()
         if not debts:
-            messagebox.showinfo("No Debts", "You have no outstanding insight debts!")
+            self.show_modern_message("No Debts", "\ud83c\udf89 You have no outstanding insight debts!", "success")
             return
         
         # Let user select which debt to clear
@@ -319,13 +446,13 @@ class SoloCraftApp:
             self.storage.save_insight_debt(selected_debt)
             
             self.refresh_debt()
-            messagebox.showinfo("Insight Recorded", "Your insight has been recorded and the debt cleared!")
+            self.show_modern_message("Insight Recorded", "\u2728 Your insight has been recorded and the debt cleared!", "success")
 
     def view_insights(self):
         """View all recorded insights."""
         debts = self.storage.get_cleared_debts()
         if not debts:
-            messagebox.showinfo("No Insights", "You haven't recorded any insights yet.")
+            self.show_modern_message("No Insights", "You haven't recorded any insights yet.", "info")
             return
         
         # Create a new window to display insights
@@ -337,20 +464,33 @@ class SoloCraftApp:
         text_area.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         for debt in debts:
-            text_area.insert(tk.END, f"=== {debt.ticket_type} Ticket - {debt.used_for} ===\n")
-            text_area.insert(tk.END, f"Cleared on: {debt.cleared_at}\n\n")
+            text_area.insert(tk.END, f"🎫 {debt.ticket_type} Ticket - {debt.used_for}\n")
+            text_area.insert(tk.END, f"📅 Cleared on: {debt.cleared_at}\n\n")
             text_area.insert(tk.END, f"{debt.insight_entry}\n\n")
-            text_area.insert(tk.END, "-" * 50 + "\n\n")
+            text_area.insert(tk.END, "─" * 60 + "\n\n")
         
         text_area.config(state=tk.DISABLED)
+    
+    def show_modern_message(self, title, message, msg_type="info"):
+        """Show a modern styled message dialog."""
+        if msg_type == "success":
+            messagebox.showinfo(title, message)
+        elif msg_type == "warning":
+            messagebox.showwarning(title, message)
+        elif msg_type == "error":
+            messagebox.showerror(title, message)
+        else:
+            messagebox.showinfo(title, message)
 
 
 class MissionCreateDialog:
     def __init__(self, parent, app):
         self.result = None
+        self.app = app
         self.dialog = tk.Toplevel(parent)
         self.dialog.title("Create New Mission")
-        self.dialog.geometry("400x500")
+        self.dialog.geometry("450x580")
+        self.dialog.configure(bg=app.colors['bg_primary'])
         self.dialog.transient(parent)
         self.dialog.grab_set()
         
@@ -361,53 +501,81 @@ class MissionCreateDialog:
 
     def setup_dialog(self):
         """Set up the mission creation dialog."""
-        main_frame = ttk.Frame(self.dialog, padding="10")
+        # Modern dialog styling
+        style = ttk.Style()
+        style.configure('Dialog.TFrame', background=self.app.colors['bg_secondary'])
+        style.configure('Dialog.TLabel', 
+                       background=self.app.colors['bg_secondary'],
+                       foreground=self.app.colors['text_primary'],
+                       font=('Segoe UI', 10))
+        style.configure('Dialog.TEntry',
+                       fieldbackground=self.app.colors['bg_tertiary'],
+                       foreground=self.app.colors['text_primary'],
+                       bordercolor=self.app.colors['border'])
+        
+        main_frame = ttk.Frame(self.dialog, style='Dialog.TFrame', padding="25")
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        # Title
-        ttk.Label(main_frame, text="Mission Title:").pack(anchor=tk.W, pady=(0, 5))
-        self.title_entry = ttk.Entry(main_frame, width=40)
-        self.title_entry.pack(fill=tk.X, pady=(0, 10))
+        # Dialog title
+        title_label = ttk.Label(main_frame, text="\ud83c\udfaf Create New Mission", 
+                               font=('Segoe UI', 16, 'bold'),
+                               background=self.app.colors['bg_secondary'],
+                               foreground=self.app.colors['accent'])
+        title_label.pack(anchor=tk.W, pady=(0, 20))
         
-        # Description
-        ttk.Label(main_frame, text="Description:").pack(anchor=tk.W, pady=(0, 5))
-        self.description_text = tk.Text(main_frame, height=5, width=40)
-        self.description_text.pack(fill=tk.X, pady=(0, 10))
+        # Mission title input
+        ttk.Label(main_frame, text="Mission Title:", style='Dialog.TLabel').pack(anchor=tk.W, pady=(0, 5))
+        self.title_entry = ttk.Entry(main_frame, width=45, style='Dialog.TEntry')
+        self.title_entry.pack(fill=tk.X, pady=(0, 15))
         
-        # Difficulty
-        ttk.Label(main_frame, text="Difficulty:").pack(anchor=tk.W, pady=(0, 5))
+        # Description input with modern styling
+        ttk.Label(main_frame, text="Description:", style='Dialog.TLabel').pack(anchor=tk.W, pady=(0, 5))
+        self.description_text = tk.Text(main_frame, height=6, width=45,
+                                      bg=self.app.colors['bg_tertiary'],
+                                      fg=self.app.colors['text_primary'],
+                                      insertbackground=self.app.colors['accent'],
+                                      selectbackground=self.app.colors['accent'],
+                                      relief='flat', borderwidth=1,
+                                      font=('Segoe UI', 9))
+        self.description_text.pack(fill=tk.X, pady=(0, 15))
+        
+        # Difficulty selection with better styling
+        ttk.Label(main_frame, text="Difficulty Level:", style='Dialog.TLabel').pack(anchor=tk.W, pady=(0, 5))
         self.difficulty_var = tk.StringVar(value="Easy")
-        difficulty_frame = ttk.Frame(main_frame)
-        difficulty_frame.pack(fill=tk.X, pady=(0, 10))
+        difficulty_frame = ttk.Frame(main_frame, style='Dialog.TFrame')
+        difficulty_frame.pack(fill=tk.X, pady=(0, 15))
         
-        for difficulty in ["Easy", "Medium", "Hard"]:
-            ttk.Radiobutton(difficulty_frame, text=difficulty, variable=self.difficulty_var, 
-                           value=difficulty).pack(side=tk.LEFT, padx=(0, 10))
+        difficulties = [("Easy", "Easy"), ("Medium", "Medium"), ("Hard", "Hard")]
+        for value, text in difficulties:
+            ttk.Radiobutton(difficulty_frame, text=text, variable=self.difficulty_var, 
+                           value=value).pack(side=tk.LEFT, padx=(0, 15))
         
-        # Constraints
-        ttk.Label(main_frame, text="Constraints (e.g., max 2 help tickets):").pack(anchor=tk.W, pady=(0, 5))
-        self.constraints_entry = ttk.Entry(main_frame, width=40)
-        self.constraints_entry.pack(fill=tk.X, pady=(0, 10))
+        # Constraints input
+        ttk.Label(main_frame, text="Constraints (e.g., max 2 help tickets):", style='Dialog.TLabel').pack(anchor=tk.W, pady=(0, 5))
+        self.constraints_entry = ttk.Entry(main_frame, width=45, style='Dialog.TEntry')
+        self.constraints_entry.pack(fill=tk.X, pady=(0, 15))
         
-        # Rewards
-        ttk.Label(main_frame, text="XP Reward:").pack(anchor=tk.W, pady=(0, 5))
+        # XP Rewards input
+        ttk.Label(main_frame, text="\u2b50 XP Reward:", style='Dialog.TLabel').pack(anchor=tk.W, pady=(0, 5))
         self.rewards_var = tk.IntVar(value=50)
-        rewards_frame = ttk.Frame(main_frame)
-        rewards_frame.pack(fill=tk.X, pady=(0, 10))
+        rewards_frame = ttk.Frame(main_frame, style='Dialog.TFrame')
+        rewards_frame.pack(fill=tk.X, pady=(0, 15))
         
-        ttk.Spinbox(rewards_frame, from_=10, to=500, textvariable=self.rewards_var, width=10).pack(side=tk.LEFT)
+        ttk.Spinbox(rewards_frame, from_=10, to=500, textvariable=self.rewards_var, width=15).pack(side=tk.LEFT)
         
-        # Punishment (optional)
-        ttk.Label(main_frame, text="Punishment (optional):").pack(anchor=tk.W, pady=(0, 5))
-        self.punishment_entry = ttk.Entry(main_frame, width=40)
-        self.punishment_entry.pack(fill=tk.X, pady=(0, 15))
+        # Optional punishment input
+        ttk.Label(main_frame, text="Punishment (optional):", style='Dialog.TLabel').pack(anchor=tk.W, pady=(0, 5))
+        self.punishment_entry = ttk.Entry(main_frame, width=45, style='Dialog.TEntry')
+        self.punishment_entry.pack(fill=tk.X, pady=(0, 20))
         
-        # Buttons
-        button_frame = ttk.Frame(main_frame)
+        # Action buttons with modern styling
+        button_frame = ttk.Frame(main_frame, style='Dialog.TFrame')
         button_frame.pack(fill=tk.X)
         
-        ttk.Button(button_frame, text="Create", command=self.create_mission).pack(side=tk.RIGHT, padx=(5, 0))
-        ttk.Button(button_frame, text="Cancel", command=self.dialog.destroy).pack(side=tk.RIGHT)
+        ttk.Button(button_frame, text="\u2713 Create Mission", style='Accent.TButton',
+                  command=self.create_mission).pack(side=tk.RIGHT, padx=(10, 0), ipadx=15, ipady=8)
+        ttk.Button(button_frame, text="Cancel", style='Secondary.TButton',
+                  command=self.dialog.destroy).pack(side=tk.RIGHT, ipadx=15, ipady=8)
 
     def create_mission(self):
         """Create the mission with entered data."""
