@@ -1,0 +1,51 @@
+Create a Python desktop application using Tkinter called "SoloCraft".
+
+The purpose is to help users build projects independently with minimal help and gamification.
+
+The core mechanics of the app should include:
+
+1. **Mission System**:
+    - Allow users to create a "mission" (project task).
+    - Each mission has:
+        - Title
+        - Description
+        - Difficulty (Easy, Medium, Hard)
+        - Constraints (e.g., max 2 help tickets)
+        - Rewards (XP)
+        - Optional Punishment (like extra insight debt or ticket loss)
+    - Display all current and completed missions.
+
+2. **Ticket System**:
+    - The user has a limited number of:
+        - Help Tickets: Used to unlock code or logic assistance.
+        - Tutorial Tickets: Used to unlock tutorials or guides.
+    - Show remaining tickets in the UI.
+    - Tickets reset weekly and can be earned by completing missions.
+
+3. **Insight Debt**:
+    - When a user uses a ticket, generate an Insight Debt.
+    - Show outstanding debts in a list.
+    - User must write an "Insight Entry" to clear each debt.
+    - Insight Entry should be stored locally (JSON or text files).
+
+4. **Basic UI Features**:
+    - Main window with:
+        - Mission creation/view panel
+        - Ticket counter
+        - Insight debt list
+        - XP counter and badges (optional)
+    - When app runs, it should open in a new Tkinter window.
+
+5. **Storage**:
+    - Use JSON or a lightweight database (like SQLite) to store:
+        - Missions (active and completed)
+        - Tickets remaining
+        - Insight entries
+        - XP, badges, progress
+
+6. Bonus:
+    - Create a "Use Ticket" button that simulates using a Help/Tutorial ticket and adds to Insight Debt.
+    - Create a "Write Insight" popup where the user writes what they learned.
+
+Keep the code modular and beginner-friendly. Build this as a working prototype with placeholder logic for ticket use and mission rewards. Don't integrate external APIs yet. Prioritize local functionality, gamification, and educational flow.And dont keep any evidence of using replit in the proj 
+
