@@ -1,0 +1,10 @@
+replit.md
+.replit
+
+.local
+__pychache__/
+attached_assets/
+.local/
+.vscode/
+env/
+venv/
